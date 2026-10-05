@@ -1,413 +1,459 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
+
+const electriciansData = [
+  {
+    id: 1,
+    name: "Anshu Chauhan",
+    phone: "919580786144",
+    displayPhone: "+91 95807 86144",
+    rating: 4.9,
+    reviews: 142,
+    experience: "7 Years",
+    hourlyRate: "₹299",
+    skills: ["Full House Wiring", "Short Circuit Repair", "MCB & DB Box Setup"],
+    about: "Certified senior electrician specializing in fault detection, high-voltage load balancing, and residential electrical wiring."
+  },
+  {
+    id: 2,
+    name: "Ankit",
+    phone: "918381994175",
+    displayPhone: "+91 83819 94175",
+    rating: 4.8,
+    reviews: 110,
+    experience: "5 Years",
+    hourlyRate: "₹249",
+    skills: ["Inverter Setup", "Ceiling Fan Repair", "Switchboard Fitting"],
+    about: "Quick response technician for household appliance servicing, emergency line fault troubleshooting, and modern fittings."
+  },
+  {
+    id: 3,
+    name: "Mayank Sharma",
+    phone: "918545859113",
+    displayPhone: "+91 85458 59113",
+    rating: 4.7,
+    reviews: 86,
+    experience: "6 Years",
+    hourlyRate: "₹279",
+    skills: ["Appliance Repair", "Geyser & Heater Setup", "LED & Lighting Design"],
+    about: "Expert in decorative and architectural lighting, heavy home appliance servicing, and safety earth testing."
+  },
+  {
+    id: 4,
+    name: "Satendra Chauhan",
+    phone: "917738958045",
+    displayPhone: "+91 77389 58045",
+    rating: 4.9,
+    reviews: 165,
+    experience: "9 Years",
+    hourlyRate: "₹349",
+    skills: ["Industrial Wiring", "Solar Inverter Grid", "Heavy Machinery Supply"],
+    about: "Industrial electrical specialist with extensive background in single-phase and 3-phase commercial electrical systems."
+  },
+  {
+    id: 5,
+    name: "Sunny Chauhan",
+    phone: "916386215641",
+    displayPhone: "+91 63862 15641",
+    rating: 4.6,
+    reviews: 74,
+    experience: "4 Years",
+    hourlyRate: "₹229",
+    skills: ["Routine Maintenance", "Cooler & Motor Rewinding", "Power Sockets"],
+    about: "Reliable local electrician for fast home visits, wiring inspections, and quick switchboard repairs."
+  }
+];
 
 export default function App() {
-  const ADMIN_PHONE = "918545859113";
-
-  const [electricians, setElectricians] = useState([
-    { id: 1, name: "Ramesh Sharma", service: "Fan", rating: "4.8 ⭐ (120+ jobs)", price: "₹199", city: "Duhai / BBDIT Campus" },
-    { id: 2, name: "Amit Verma", service: "Wiring", rating: "4.9 ⭐ (85 jobs)", price: "₹299", city: "RDC Raj Nagar, Ghaziabad" },
-    { id: 3, name: "Vikram Singh", service: "Cooler", rating: "4.7 ⭐ (94 jobs)", price: "₹249", city: "Muradnagar / Meerut Rd" },
-    { id: 4, name: "Suresh Prajapati", service: "AC", rating: "4.9 ⭐ (210 jobs)", price: "₹399", city: "Govindpuram, Ghaziabad" }
-  ]);
-
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [userLocation, setUserLocation] = useState("Duhai, Ghaziabad (BBDIT Campus)");
-  const [currentUser, setCurrentUser] = useState(null);
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedElectrician, setSelectedElectrician] = useState(null);
+  const [bookingElectrician, setBookingElectrician] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showTechModal, setShowTechModal] = useState(false);
-  const [showBookModal, setShowBookModal] = useState(false);
 
-  const [otpStep, setOtpStep] = useState(false);
-  const [loginForm, setLoginForm] = useState({ name: "", phone: "", otp: "" });
-  const [generatedOtp, setGeneratedOtp] = useState(null);
-  const [selectedTech, setSelectedTech] = useState("");
-  const [bookingForm, setBookingForm] = useState({ address: "", date: "" });
-  const [techForm, setTechForm] = useState({ name: "", phone: "", service: "Fan", city: "", price: "" });
+  // Auth State
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
-  useEffect(() => {
-    const saved = localStorage.getItem("bm_user");
-    if (saved) {
-      try {
-        setCurrentUser(JSON.parse(saved));
-      } catch (e) {
-        localStorage.removeItem("bm_user");
-      }
-    }
-  }, []);
+  // Booking State
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingAddress, setBookingAddress] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  const handleDetectLocation = () => {
-    setUserLocation("Detecting...");
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setUserLocation(`Duhai, Ghaziabad (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`);
-        },
-        () => setUserLocation("Duhai, Ghaziabad (BBDIT Campus)"),
-        { timeout: 5000 }
-      );
-    } else {
-      setUserLocation("Duhai, Ghaziabad (BBDIT Campus)");
-    }
-  };
-
-  const handleSendOtp = () => {
-    if (!loginForm.name || loginForm.phone.length !== 10) {
-      alert("Kripya apna poora naam aur 10-digit number dalein!");
-      return;
-    }
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(otp);
-    alert(`⚡ Bijli Mittra Login OTP: ${otp}`);
-    setOtpStep(true);
-  };
-
-  const handleVerifyOtp = () => {
-    if (loginForm.otp === generatedOtp) {
-      const userObj = { name: loginForm.name, phone: loginForm.phone };
-      localStorage.setItem("bm_user", JSON.stringify(userObj));
-      setCurrentUser(userObj);
-      setShowLoginModal(false);
-      setOtpStep(false);
-      alert("Login safal raha!");
-    } else {
-      alert("Galat OTP! Sahi OTP dalein.");
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("bm_user");
-    setCurrentUser(null);
-    alert("Aap logout ho chuke hain.");
-  };
-
-  const handleRegisterTech = (e) => {
+  const handleLoginSubmit = (e) => {
     e.preventDefault();
-    const newTech = {
-      id: Date.now(),
-      name: techForm.name,
-      service: techForm.service,
-      rating: "5.0 ⭐ (New Partner)",
-      price: techForm.price.startsWith("₹") ? techForm.price : "₹" + techForm.price,
-      city: techForm.city
-    };
-
-    setElectricians([newTech, ...electricians]);
-    setShowTechModal(false);
-    alert(`Badhai ho ${techForm.name}! Aapki profile add ho gayi.`);
-
-    const msg = `🛠️ *Naya Electrician Registration!*%0A👤 Name: ${techForm.name}%0A📞 Phone: ${techForm.phone}%0A🔧 Service: ${techForm.service} Specialist%0A📍 Area: ${techForm.city}%0A💰 Fee: ${techForm.price}`;
-    window.open(`https://wa.me/${ADMIN_PHONE}?text=${msg}`, "_blank");
+    if (loginEmail && loginPassword) {
+      setIsLoggedIn(true);
+      setShowLoginModal(false);
+    }
   };
 
-  const handleOpenBooking = (techName) => {
-    if (!currentUser) {
-      alert("Booking karne ke liye pehle Login karein!");
+  const initiateBooking = (electrician) => {
+    if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
-    setSelectedTech(techName);
-    setShowBookModal(true);
+    setSelectedElectrician(null);
+    setBookingElectrician(electrician);
+    setBookingSuccess(false);
   };
 
-  const handleConfirmBooking = (e) => {
+  const handleBookingSubmit = (e) => {
     e.preventDefault();
-    setShowBookModal(false);
-    const msg = `⚡ *Bijli Mittra - Nayi Booking Request!*%0A👤 Customer: ${currentUser.name}%0A📞 Phone: ${currentUser.phone}%0A🔧 Electrician: ${selectedTech}%0A📍 Address: ${bookingForm.address}%0A📅 Date: ${bookingForm.date}`;
-    window.open(`https://wa.me/${ADMIN_PHONE}?text=${msg}`, "_blank");
-  };
 
-  const filteredElectricians = activeFilter === "All"
-    ? electricians
-    : electricians.filter((item) => item.service === activeFilter);
+    // Prepare WhatsApp Message content
+    const message = `*NEW BOOKING ALERT - BIJLI MITTRA*%0A%0A` +
+      `*Electrician:* ${bookingElectrician.name}%0A` +
+      `*Customer Name:* ${customerName}%0A` +
+      `*Customer Phone:* ${customerPhone}%0A` +
+      `*Schedule Date & Time:* ${bookingDate}%0A` +
+      `*Service Address:* ${bookingAddress}%0A%0A` +
+      `_Please confirm availability and contact the customer._`;
+
+    // Direct WhatsApp chat link
+    const whatsappUrl = `https://wa.me/${bookingElectrician.phone}?text=${message}`;
+
+    setBookingSuccess(true);
+
+    // Open WhatsApp in a new tab
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+      setBookingElectrician(null);
+      setBookingSuccess(false);
+      setCustomerName("");
+      setCustomerPhone("");
+      setBookingDate("");
+      setBookingAddress("");
+    }, 1200);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between font-sans">
-      <div>
-        <header className="bg-white px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
-          <div className="text-2xl font-bold text-sky-600 flex items-center gap-1 cursor-pointer">
-            ⚡ Bijli Mittra
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-black text-blue-600 tracking-tight">⚡ Bijli Mittra</span>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowTechModal(true)}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
-            >
-              Join as Electrician 🛠️
-            </button>
-            {currentUser ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-sky-600">👤 {currentUser.name}</span>
+
+          <div>
+            {isLoggedIn ? (
+              <div className="flex items-center gap-4">
+                <span className="text-xs sm:text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                  ● Verified User
+                </span>
                 <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white text-xs px-2.5 py-1.5 rounded"
+                  onClick={() => setIsLoggedIn(false)}
+                  className="text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 cursor-pointer"
                 >
                   Logout
                 </button>
               </div>
             ) : (
               <button
-                onClick={() => { setOtpStep(false); setShowLoginModal(true); }}
-                className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                onClick={() => setShowLoginModal(true)}
+                className="bg-blue-600 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm cursor-pointer"
               >
-                Login
+                Login / Sign In
               </button>
             )}
           </div>
-        </header>
+        </div>
+      </header>
 
-        <section className="bg-gradient-to-r from-sky-600 to-sky-700 text-white py-12 px-4 text-center">
-          <h1 className="text-3xl font-extrabold mb-2">Reliable Electricians Near You</h1>
-          <p className="text-sky-100 text-sm md:text-base">Doorstep electrical repair within 30 minutes</p>
+      {/* Hero Section */}
+      <section className="bg-blue-600 text-white py-12 px-4 text-center">
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">
+          On-Demand Verified Electricians at Your Doorstep
+        </h1>
+        <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base">
+          View full profiles, compare transparent pricing, and send instant booking requests directly to your chosen electrician.
+        </p>
+      </section>
 
-          <div className="max-w-md mx-auto mt-6 flex gap-2 bg-white p-2 rounded-xl shadow-lg">
-            <input
-              type="text"
-              readOnly
-              value={userLocation}
-              className="flex-1 px-3 text-slate-700 text-sm outline-none bg-transparent"
-            />
-            <button
-              onClick={handleDetectLocation}
-              className="bg-slate-100 hover:bg-slate-200 text-sky-600 text-sm font-semibold px-3 py-1.5 rounded-lg border border-slate-300"
+      {/* Professionals Directory */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Verified Electricians
+          </h2>
+          <span className="text-xs sm:text-sm text-gray-600 font-semibold bg-white border border-gray-200 px-3 py-1 rounded-md">
+            5 Professionals Available
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {electriciansData.map((elec) => (
+            <div
+              key={elec.id}
+              className="bg-white border border-gray-200 rounded-xl p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between"
             >
-              📍 Near Me
-            </button>
-          </div>
-        </section>
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-lg text-gray-900">{elec.name}</h3>
+                  <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2 py-1 rounded-md">
+                    ★ {elec.rating} ({elec.reviews})
+                  </span>
+                </div>
 
-        <div className="flex justify-center gap-2 flex-wrap py-6 px-4">
-          {["All", "Fan", "Cooler", "Wiring", "AC"].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition border ${
-                activeFilter === cat
-                  ? "bg-sky-600 text-white border-sky-600"
-                  : "bg-white text-slate-600 border-slate-300 hover:border-sky-500"
-              }`}
-            >
-              {cat === "All" ? "All Services" : `${cat} Specialist`}
-            </button>
+                <div className="space-y-1 mb-4 text-sm text-gray-600">
+                  <p><span className="font-semibold text-gray-800">Experience:</span> {elec.experience}</p>
+                  <p><span className="font-semibold text-gray-800">Visiting Fee:</span> {elec.hourlyRate}</p>
+                  <p><span className="font-semibold text-gray-800">Contact:</span> {elec.displayPhone}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {elec.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-md font-medium"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => setSelectedElectrician(elec)}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold text-sm py-2.5 rounded-lg transition cursor-pointer"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={() => initiateBooking(elec)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-lg transition shadow-xs cursor-pointer"
+                >
+                  {isLoggedIn ? "Book Now" : "Login to Book"}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
+      </main>
 
-        <main className="max-w-6xl mx-auto px-4 w-full mb-12">
-          <h2 className="text-xl font-bold mb-6 text-slate-800">Available Verified Technicians</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredElectricians.map((tech) => (
-              <div key={tech.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition">
-                <div>
-                  <h3 className="font-bold text-lg text-slate-800">{tech.name}</h3>
-                  <span className="inline-block bg-sky-50 text-sky-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 mb-2">
-                    {tech.service} Specialist
-                  </span>
-                  <p className="text-xs text-slate-500 mb-1">📍 {tech.city}</p>
-                  <p className="text-xs text-slate-500 mb-3">{tech.rating}</p>
-                  <p className="text-lg font-bold text-emerald-600 mb-4">
-                    {tech.price} <span className="text-xs text-slate-400 font-normal">Visiting Fee</span>
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleOpenBooking(tech.name)}
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2 rounded-lg transition"
-                >
-                  Book Now
-                </button>
+      {/* MODAL 1: VIEW PROFILE */}
+      {selectedElectrician && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button
+              onClick={() => setSelectedElectrician(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-extrabold text-xl">
+                {selectedElectrician.name.charAt(0)}
               </div>
-            ))}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">{selectedElectrician.name}</h3>
+                <span className="text-xs font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                  ★ {selectedElectrician.rating} ({selectedElectrician.reviews} Verified Customer Reviews)
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 border-y border-gray-200 py-4 my-4 text-sm">
+              <p className="text-gray-600 leading-relaxed">{selectedElectrician.about}</p>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <span className="text-xs text-gray-500 font-semibold uppercase">Total Experience</span>
+                  <p className="font-bold text-gray-900">{selectedElectrician.experience}</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <span className="text-xs text-gray-500 font-semibold uppercase">Standard Visiting Fee</span>
+                  <p className="font-bold text-gray-900">{selectedElectrician.hourlyRate}</p>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-xs font-bold text-gray-800 uppercase tracking-wider">Direct WhatsApp / Contact</span>
+                <p className="text-sm font-semibold text-blue-600 mt-0.5">{selectedElectrician.displayPhone}</p>
+              </div>
+
+              <div>
+                <span className="text-xs font-bold text-gray-800 uppercase tracking-wider">Key Specializations</span>
+                <ul className="list-disc list-inside text-gray-600 text-xs mt-1.5 space-y-1">
+                  {selectedElectrician.skills.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setSelectedElectrician(null)}
+                className="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2.5 rounded-lg text-sm transition cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => initiateBooking(selectedElectrician)}
+                className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition shadow-xs cursor-pointer"
+              >
+                {isLoggedIn ? "Proceed to Book" : "Login to Book"}
+              </button>
+            </div>
           </div>
-        </main>
-      </div>
+        </div>
+      )}
 
+      {/* MODAL 2: BRIGHT LOGIN FORM */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full relative shadow-xl">
-            <button onClick={() => setShowLoginModal(false)} className="absolute top-4 right-4 text-slate-400 text-lg">✕</button>
-            <h3 className="text-lg font-bold mb-4">Customer Login</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold cursor-pointer"
+            >
+              &times;
+            </button>
 
-            {!otpStep ? (
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-semibold text-slate-600">Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="Apna naam dalein"
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                    value={loginForm.name}
-                    onChange={(e) => setLoginForm({ ...loginForm, name: e.target.value })}
-                  />
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Sign In to Continue</h3>
+            <p className="text-sm text-gray-600 mb-5">Please authenticate to book verified electricians.</p>
+
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Email Address or Mobile
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter email or mobile"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Enter your password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm transition shadow-sm cursor-pointer"
+              >
+                Sign In
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: BOOKING FORM & DIRECT WHATSAPP NOTIFICATION */}
+      {bookingElectrician && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button
+              onClick={() => setBookingElectrician(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold cursor-pointer"
+            >
+              &times;
+            </button>
+
+            {bookingSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                  ✓
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-600">Mobile Number</label>
-                  <input
-                    type="tel"
-                    maxLength={10}
-                    placeholder="10-digit number"
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                    value={loginForm.phone}
-                    onChange={(e) => setLoginForm({ ...loginForm, phone: e.target.value })}
-                  />
-                </div>
-                <button
-                  onClick={handleSendOtp}
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2 rounded-lg mt-2"
-                >
-                  Send OTP
-                </button>
+                <h3 className="text-lg font-bold text-gray-900">Redirecting to WhatsApp...</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Connecting you directly with <strong>{bookingElectrician.name}</strong> ({bookingElectrician.displayPhone}).
+                </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-semibold text-slate-600">Enter 4-Digit OTP</label>
-                  <input
-                    type="text"
-                    maxLength={4}
-                    placeholder="OTP"
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none text-center font-bold tracking-widest"
-                    value={loginForm.otp}
-                    onChange={(e) => setLoginForm({ ...loginForm, otp: e.target.value })}
-                  />
-                </div>
-                <button
-                  onClick={handleVerifyOtp}
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2 rounded-lg"
-                >
-                  Verify & Login
-                </button>
-                <button
-                  onClick={() => setOtpStep(false)}
-                  className="w-full bg-slate-100 text-slate-600 text-sm font-semibold py-1.5 rounded-lg"
-                >
-                  Back
-                </button>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Confirm Service Booking</h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Technician: <span className="font-bold text-gray-900">{bookingElectrician.name}</span> • Rate: <span className="font-semibold text-blue-600">{bookingElectrician.hourlyRate}</span>
+                </p>
+
+                <form onSubmit={handleBookingSubmit} className="space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Your Full Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter your name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Your Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. 9876543210"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Preferred Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Service Address
+                    </label>
+                    <textarea
+                      required
+                      rows={2}
+                      placeholder="House/Street No., Landmark, City"
+                      value={bookingAddress}
+                      onChange={(e) => setBookingAddress(e.target.value)}
+                      className="w-full bg-white border border-gray-300 text-gray-900 text-sm font-medium rounded-lg p-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
+                    ></textarea>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-sm transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Send Booking Request via WhatsApp</span>
+                  </button>
+                </form>
               </div>
             )}
           </div>
         </div>
       )}
-
-      {showTechModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full relative shadow-xl">
-            <button onClick={() => setShowTechModal(false)} className="absolute top-4 right-4 text-slate-400 text-lg">✕</button>
-            <h3 className="text-lg font-bold mb-1">Join as Partner Electrician</h3>
-            <p className="text-xs text-slate-500 mb-4">Apni profile banayein.</p>
-            <form onSubmit={handleRegisterTech} className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Electrician ka naam"
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={techForm.name}
-                  onChange={(e) => setTechForm({ ...techForm, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Mobile Number</label>
-                <input
-                  type="tel"
-                  maxLength={10}
-                  required
-                  placeholder="10-digit number"
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={techForm.phone}
-                  onChange={(e) => setTechForm({ ...techForm, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Specialization</label>
-                <select
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={techForm.service}
-                  onChange={(e) => setTechForm({ ...techForm, service: e.target.value })}
-                >
-                  <option value="Fan">Fan Specialist</option>
-                  <option value="Cooler">Cooler Specialist</option>
-                  <option value="Wiring">Wiring Specialist</option>
-                  <option value="AC">AC Specialist</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Area / Locality</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Duhai, Ghaziabad"
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={techForm.city}
-                  onChange={(e) => setTechForm({ ...techForm, city: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Visiting Fee</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. ₹200"
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={techForm.price}
-                  onChange={(e) => setTechForm({ ...techForm, price: e.target.value })}
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold py-2 rounded-lg mt-2"
-              >
-                Create Profile
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showBookModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full relative shadow-xl">
-            <button onClick={() => setShowBookModal(false)} className="absolute top-4 right-4 text-slate-400 text-lg">✕</button>
-            <h3 className="text-lg font-bold mb-1">Book Technician</h3>
-            <p className="text-sm font-semibold text-sky-600 mb-4">Booking with: {selectedTech}</p>
-            <form onSubmit={handleConfirmBooking} className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Service Address</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ghar ka pata"
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={bookingForm.address}
-                  onChange={(e) => setBookingForm({ ...bookingForm, address: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Date</label>
-                <input
-                  type="date"
-                  required
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm mt-1 outline-none"
-                  value={bookingForm.date}
-                  onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2 rounded-lg mt-2"
-              >
-                Book via WhatsApp
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <footer className="bg-slate-900 text-slate-400 py-8 px-4 text-center text-sm leading-relaxed">
-        <p><strong className="text-white">Bijli Mittra Services Pvt. Ltd.</strong></p>
-        <p>A-Block, BBDIT Campus, Delhi-Meerut Road, Duhai, Ghaziabad, UP - 201206</p>
-        <p className="mt-1">📞 +91 85458 59113 | ✉️ contact@bijlimittra.com</p>
-        <p className="mt-3 text-xs text-slate-500">&copy; 2026 Bijli Mittra. All rights reserved.</p>
-      </footer>
     </div>
   );
 }
