@@ -489,7 +489,7 @@ export default function App() {
                   className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
                 />
                 <input
-                  type="datetime-local"
+                  type="date"
                   required
                   value={bookDateTime}
                   onChange={(e) => setBookDateTime(e.target.value)}
