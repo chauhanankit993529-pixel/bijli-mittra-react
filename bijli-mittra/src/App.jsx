@@ -472,10 +472,47 @@ export default function App() {
             <p className="text-xs text-blue-600 mb-3 font-semibold">Visiting Fee: {bookingTarget.rate}</p>
 
             <form onSubmit={handleBookingSubmit} className="space-y-2.5">
-              <input
-                type="text"
-                required
-                placeholder="Your Name"
-                value={bookName}
-                onChange={(e) => setBookName(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
+                <input
+                  type="text"
+                  required
+                  placeholder="Your Name"
+                  value={bookName}
+                  onChange={(e) => setBookName(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
+                />
+                <input
+                  type="tel"
+                  required
+                  placeholder="Your Mobile Number"
+                  value={bookPhone}
+                  onChange={(e) => setBookPhone(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
+                />
+                <input
+                  type="datetime-local"
+                  required
+                  value={bookDateTime}
+                  onChange={(e) => setBookDateTime(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
+                />
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Your Address"
+                  value={bookAddress}
+                  onChange={(e) => setBookAddress(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded p-2 text-xs text-gray-900"
+                ></textarea>
+                <button
+                  type="submit"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs cursor-pointer"
+                >
+                  Send Request via WhatsApp
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
