@@ -71,20 +71,17 @@ const initialElectricians = [
 export default function App() {
   const [electricians, setElectricians] = useState(initialElectricians);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null); // 'customer' | 'electrician'
+  const [userRole, setUserRole] = useState(null);
 
   const [selectedElectrician, setSelectedElectrician] = useState(null);
   const [bookingElectrician, setBookingElectrician] = useState(null);
 
-  // Modals
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showElectricianJoinModal, setShowElectricianJoinModal] = useState(false);
 
-  // Auth Form State
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Electrician Registration State
   const [newElecName, setNewElecName] = useState("");
   const [newElecPhone, setNewElecPhone] = useState("");
   const [newElecEmail, setNewElecEmail] = useState("");
@@ -92,7 +89,6 @@ export default function App() {
   const [newElecRate, setNewElecRate] = useState("");
   const [newElecSkills, setNewElecSkills] = useState("");
 
-  // Booking Form State
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [bookingDate, setBookingDate] = useState("");
@@ -124,7 +120,7 @@ export default function App() {
       experience: `${newElecExp} Years`,
       hourlyRate: `₹${newElecRate}`,
       skills: newElecSkills.split(",").map((s) => s.trim()).filter(Boolean),
-      about: "Verified skilled electrical professional on the Bijli Mittra platform."
+      about: "Verified skilled electrical professional registered on the Bijli Mittra platform."
     };
 
     setElectricians([newWorker, ...electricians]);
@@ -132,7 +128,6 @@ export default function App() {
     setUserRole("electrician");
     setShowElectricianJoinModal(false);
 
-    // Reset Form
     setNewElecName("");
     setNewElecPhone("");
     setNewElecEmail("");
@@ -179,7 +174,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-gray-800 font-sans">
-      {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -188,16 +182,15 @@ export default function App() {
             </div>
             <div>
               <span className="text-2xl font-black text-blue-600 tracking-tight block">Bijli Mittra</span>
-              <span className="text-[10px] text-gray-600 uppercase tracking-widest font-semibold block -mt-1">Verified Electrician Network</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block -mt-1">Verified Electrician Network</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Join As Electrician Button */}
             {!isLoggedIn && (
               <button
                 onClick={() => setShowElectricianJoinModal(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold px-4 py-2 rounded-lg transition"
+                className="hidden sm:inline-flex items-center gap-1.5 border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs sm:text-sm font-bold px-4 py-2 rounded-lg transition cursor-pointer"
               >
                 <span>🔧</span>
                 <span>Join as Electrician</span>
@@ -232,7 +225,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-14 px-4 text-center">
         <h1 className="text-3xl sm:text-5xl font-extrabold mb-3 tracking-tight">
           On-Demand Verified Electricians at Your Doorstep
@@ -240,8 +232,7 @@ export default function App() {
         <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
           Transparent rates, instant booking notifications directly via WhatsApp, and fully verified professional electricians ready to serve you.
         </p>
-        
-        {/* Mobile quick action for electrician registration */}
+
         <div className="mt-5 sm:hidden">
           <button
             onClick={() => setShowElectricianJoinModal(true)}
@@ -252,21 +243,19 @@ export default function App() {
         </div>
       </section>
 
-      {/* Directory Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-gray-200 gap-3">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Verified Electricians Directory
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Click on profile to review certifications or book instantly.</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Click on profile to review certifications or book instantly.</p>
           </div>
           <span className="self-start sm:self-auto text-xs sm:text-sm text-blue-700 font-bold bg-blue-50 border border-blue-200 px-3.5 py-1.5 rounded-full">
             ● {electricians.length} Professionals Active
           </span>
         </div>
 
-        {/* Electrician Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {electricians.map((elec) => {
             const initials = elec.name.split(" ").map(n => n[0]).join("").slice(0, 2);
@@ -276,7 +265,6 @@ export default function App() {
                 className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
-                  {/* Top Profile Avatar & Name */}
                   <div className="flex items-center gap-3.5 mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0 border-2 border-white">
                       {initials}
@@ -294,38 +282,36 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Clean Contact & Details Box */}
                   <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 mb-4 space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                      <span className="text-gray-500 font-medium flex items-center gap-1.5">
                         <span>💼</span> Experience:
                       </span>
                       <span className="font-bold text-gray-900">{elec.experience}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                      <span className="text-gray-500 font-medium flex items-center gap-1.5">
                         <span>💰</span> Visiting Fee:
                       </span>
                       <span className="font-bold text-blue-600 text-sm">{elec.hourlyRate}</span>
                     </div>
 
                     <div className="flex items-center justify-between pt-1 border-t border-slate-200">
-                      <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                      <span className="text-gray-500 font-medium flex items-center gap-1.5">
                         <span>📞</span> Phone:
                       </span>
                       <span className="font-bold text-gray-900">{elec.displayPhone}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 font-medium flex items-center gap-1.5">
-                        <span>✉️</span> Email:
+                      <span className="text-gray-500 font-medium flex items-center gap-1.5">
+                        <span>✉️️</span> Email:
                       </span>
                       <span className="font-medium text-gray-700 truncate max-w-[150px]">{elec.email}</span>
                     </div>
                   </div>
 
-                  {/* Skills tags */}
                   <div className="flex flex-wrap gap-1.5 mb-5">
                     {elec.skills.map((skill, index) => (
                       <span
@@ -338,7 +324,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Card Action Buttons */}
                 <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-gray-100">
                   <button
                     onClick={() => setSelectedElectrician(elec)}
@@ -377,7 +362,7 @@ export default function App() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">{selectedElectrician.name}</h3>
-                <p className="text-xs text-gray-600 font-medium">{selectedElectrician.email}</p>
+                <p className="text-xs text-gray-500 font-medium">{selectedElectrician.email}</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
                     ★ {selectedElectrician.rating} ({selectedElectrician.reviews} Reviews)
@@ -391,17 +376,17 @@ export default function App() {
 
             <div className="space-y-4 border-y border-gray-200 py-4 my-4 text-sm">
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">About Technician</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">About Technician</h4>
                 <p className="text-gray-700 leading-relaxed text-xs sm:text-sm">{selectedElectrician.about}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  <span className="text-[11px] text-gray-600 font-semibold uppercase">Total Experience</span>
+                  <span className="text-[11px] text-gray-500 font-semibold uppercase">Total Experience</span>
                   <p className="font-extrabold text-gray-900 text-sm sm:text-base mt-0.5">{selectedElectrician.experience}</p>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  <span className="text-[11px] text-gray-600 font-semibold uppercase">Standard Visiting Fee</span>
+                  <span className="text-[11px] text-gray-500 font-semibold uppercase">Standard Visiting Fee</span>
                   <p className="font-extrabold text-blue-600 text-sm sm:text-base mt-0.5">{selectedElectrician.hourlyRate}</p>
                 </div>
               </div>
@@ -442,10 +427,22 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 2: JOIN AS ELECTRICIAN (NEW REGISTRATION) */}
+      {/* MODAL 2: JOIN AS ELECTRICIAN */}
       {showElectricianJoinModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button
               onClick={() => setShowElectricianJoinModal(false)}
-              className="absolute top-4 right-4 text
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-2xl">🔧</span>
+              <h3 className="text-xl font-extrabold text-gray-900">Electrician Partner Registration</h3>
+            </div>
+            <p className="text-xs text-gray-500 mb-5">Create your verified profile to receive instant customer bookings directly on WhatsApp.</p>
+
+            <form onSubmit={handleElectricianRegister}
+            
